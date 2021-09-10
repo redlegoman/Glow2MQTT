@@ -20,21 +20,42 @@ Then run the consumption.sh on a cronjob every... however long you want.. Glow o
 
 HA YAML code for MQTT Consumption Sensor : 
 
+
+
+
 ```YAML
+sensor:
+
   - platform: mqtt
-    name: glow_energy_today
-    state_topic: "glowmarkt/consumptiontoday"
-    unit_of_measurement: 'kWh'  
+    name: glow_electric_energy_today
+    state_topic: "glowmarkt/electric_consumptiontoday"
+    unit_of_measurement: 'kWh'
     device_class: energy
     state_class: total_increasing
+
+  - platform: mqtt
+    name: glow_gas_energy_today
+    state_topic: "glowmarkt/gas_consumptiontoday"
+    unit_of_measurement: 'kWh'
+    device_class: energy
+    state_class: total_increasing
+
+template:
+  sensor:
+    - name: Gas Consumption glow
+      unit_of_measurement: 'm³'
+      state: "{{ states('sensor.glow_gas_energy_today') | float * 3.6 / 40 / 1.02264 }}"
+      icon: 'mdi:fire'
+      state_class: total_increasing
+      device_class: gas
 ```
 
 HA YAML code for MQTT Cost Sensor : 
 
 ```YAML
   - platform: mqtt
-    name: glow_cost_today
-    state_topic: "glowmarkt/costtoday"
+    name: glow_electric_cost_today
+    state_topic: "glowmarkt/electric_costtoday"
     unit_of_measurement: '£'  
     value_template: "{{ (value | float | round(2)) / 100 }}"
     device_class: energy
